@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from string import digits
+from string import digits,ascii_letters
 
 
 
@@ -9,7 +9,7 @@ class ExprItem:
         self.strlen = len(s)
 
     def __repr__(self):
-        return ' ' + str(self.value) + ' '
+        return str(type(self)) + ': ' + str(self.value)
 
 class Number(ExprItem):
     def __init__(self, s):
@@ -17,7 +17,7 @@ class Number(ExprItem):
         self.value = float(s)
 
 class Operator(ExprItem):
-    operator_priority = dict('(' : 0, # чтобы не было ошибок пи парсинге
+    operator_priority = {'(' : 0, # чтобы не было ошибок пи парсинге
                              '+' : 1,
                              #'-' : 1, заменен та унарный минус
                              '*' : 2,
@@ -30,8 +30,8 @@ class Operator(ExprItem):
                             'log' : 6,
                             'sqrt' : 6,
                             'exp' : 6
-                            )
-    def __init__(self):
+                         }
+    def __init__(self,s):
         super().__init__(s)
         self.value = s
         self.priority = Operator.operator_priority[self.value]
@@ -63,7 +63,27 @@ def parse_item(s):
     if s[p] in '()':
         return Bracket(s[p])
 
-    
+    for op in Operator.operator_priority:
+        if s.startswith(op):
+            return Operator(op)
+
+    while s[p] in ascii_letters:
+        p += 1
+    return Variable(s[:p])
+
+
+s = '(1+1)*x+sin(123)'
+p = 0
+ret = list()
+while p < len(s):
+    item = parse_item(s[p:])
+    ret.append(item)
+    p += item.strlen
+
+print(ret)
+
+
+
 
 
 
